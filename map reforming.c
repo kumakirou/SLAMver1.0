@@ -1,7 +1,7 @@
 // Online C compiler to run C program online
 #include<stdio.h>
 #include<math.h>
-const short int div_theta=24;
+const short int div_theta=48;
 int ultra_sonic(){/*超音波センサーで距離を測定する関数*/
     return 20;//一応20を返すようにしてある
 }
@@ -15,40 +15,7 @@ int bloodhound(char D[div_theta]){
     }
     
 }
-int x_modify_chunk(unsigned char table_memory[15][15][2]){
-    short int x_C;
-    short int y_C;
-    for(x_C=14;x_C>1;x_C--){
-        for(y_C=0;y_C<15;y_C++){
-            table_memory[x_C][y_C][0]=table_memory[x_C-2][y_C][0];
-            table_memory[x_C][y_C][1]=table_memory[x_C-2][y_C][1];
-        }
-    }
-    for(x_C=1;x_C+1>0;x_C--){
-        for(y_C=0;y_C<15;y_C++){
-            table_memory[x_C][y_C][0]=table_memory[4-x_C][y_C][0];
-            table_memory[x_C][y_C][1]=table_memory[4-x_C][y_C][1];
-        }
-    }
-    
-}
-int y_modify_chunk(unsigned char table_memory[15][15][2]){
-    short int y_C;
-    short int x_C;
-    for(y_C=14;y_C>1;y_C--){
-        for(x_C=0;x_C<15;x_C++){
-            table_memory[y_C][x_C][0]=table_memory[y_C-2][x_C][0];
-            table_memory[y_C][x_C][1]=table_memory[y_C-2][x_C][1];
-        }
-    }
-    for(y_C=1;y_C+1>0;y_C--){
-        for(x_C=0;x_C<15;x_C++){
-            table_memory[y_C][x_C][0]=table_memory[4-y_C][x_C][0];
-            table_memory[y_C][x_C][1]=21;
-        }
-    }
-    
-}
+
 int SD_read_chunk(short int x,short int y,char map_memory[4][11][11]){//チャンクの情報をSDからメモリに読み込む関数
     short int x_C;
     short int y_C;
@@ -123,80 +90,53 @@ int possibility;
     }
     return possibility;
 }
-int LOC(short int loc_x,short int loc_y,int loc[2]){
-    char D[div_theta];//角度ごとの距離
+int write_map_SD(short int x,short int y,char map_memory[4][11][11]){
+}
+int map_reforming(short int loc_x,short int loc_y,char D[div_theta+1]){
     bloodhound(D);
     char map_memory[4][11][11];//11*11のマップ
     unsigned char table_memory[15][15][2];//15*15のテーブル、ただし、chunk_x_c=0の時はy二つx軸方向にずれている
     short int chank_x_C;//チャンクを数えるカウンタ
     short int chank_y_C;
-    int R_xy[5][5];//相関係数を入れる箱
-    short int X_C;//相関係数を求めるために、テーブルと捜査範囲をずらすカウンタ
-    short int Y_C;
-    char X;//最終結果を入れる
-    char Y;
     short int x_C;//チャンク内のマップのマスを数えるカウンタ
     short int y_C;
     short int theta_C;//角度情報を取り出すカウンタ。反時計回り
+    short int theta_C_margin;
+    short int possi;
+    short int table;
     for(chank_x_C=0;chank_x_C<3;chank_x_C++){
-        for (chank_y_C=0;chank_y_C<3&&chank_y_C<3;chank_y_C++);
+        for (chank_y_C=0;chank_y_C<3&&chank_y_C<3;chank_y_C++)
         {
-            if((chank_x_C*chank_y_C)>0&&(chank_x_C*chank_y_C)<4)
+            SD_read_table(11*chank_x_C,11*chank_y_C,table_memory);
+            SD_read_chunk(loc_x+11*chank_x_C,loc_y+11*chank_y_C,map_memory);
+            for(x_C = 0; x_C < 11; x_C++)
             {
-                if(chank_x_C==0){
-                    SD_read_table(11*chank_x_C,11*chank_y_C-2,table_memory);
-                    x_modify_chunk(table_memory);
-                }
-                else if (chank_y_C==0){
-                    SD_read_table(11*chank_x_C-2,11*chank_y_C,table_memory);
-                    y_modify_chunk(table_memory);
-                }
-                else{
-                    SD_read_table(11*chank_x_C-2,11*chank_y_C-2,table_memory);
-                }
-                SD_read_chunk(x_loc+11*chank_x_C,y_loc+11*chank_y_C,map_memory);
-                for(X_C=0;X_C<5;X_C++){
-                    for (Y_C; Y_C< 5; Y_C++)
-                    {
-                        for(x_C = 0; x_C < 11; x_C++)
-                        {
-                            for (y_C = 0; y_C < 11; y_C++)
-                            {
-                                theta_C=table_memory[x_C+X_C][y_C+Y_C][1]*0.046875;
-                                R_xy[X_C][Y_C]=R_xy[X_C][Y_C]+map_memory[0][x_C][y_C]*
-                                (possibility_theta(D[theta_C],table_memory[x_C+X_C][y_C+Y_C][0])*((theta_C+1)*21.3-table_memory[x_C+X_C][y_C+Y_C][1])
-                                +possibility_theta(D[theta_C+1],table_memory[x_C+X_C][y_C+Y_C][0])*(table_memory[x_C+X_C][y_C+Y_C][1]-theta_C*21.3));
-                                R_xy[X_C][Y_C]=R_xy[X_C][Y_C]+map_memory[1][x_C][y_C]*
-                                (possibility_theta(D[12-theta_C],table_memory[x_C+X_C][y_C+Y_C][0])*((theta_C+1)*21.3-table_memory[x_C+X_C][y_C+Y_C][1])
-                                +possibility_theta(D[11-theta_C],table_memory[x_C+X_C][y_C+Y_C][0])*(table_memory[x_C+X_C][y_C+Y_C][1]-theta_C*21.3));
-                                R_xy[X_C][Y_C]=R_xy[X_C][Y_C]+map_memory[2][x_C][y_C]*
-                                (possibility_theta(D[12+theta_C],table_memory[x_C+X_C][y_C+Y_C][0])*((theta_C+1)*21.3-table_memory[x_C+X_C][y_C+Y_C][1])
-                                +possibility_theta(D[13+theta_C],table_memory[x_C+X_C][y_C+Y_C][0])*(table_memory[x_C+X_C][y_C+Y_C][1]-theta_C*21.3));
-                                R_xy[X_C][Y_C]=R_xy[X_C][Y_C]+map_memory[3][x_C][y_C]*
-                                (possibility_theta(D[24-theta_C],table_memory[x_C+X_C][y_C+Y_C][0])*((theta_C+1)*21.3-table_memory[x_C+X_C][y_C+Y_C][1])
-                                +possibility_theta(D[23-theta_C],table_memory[x_C+X_C][y_C+Y_C][0])*(table_memory[x_C+X_C][y_C+Y_C][1]-theta_C*21.3));
-                            }
-                        }
+                for (y_C = 0; y_C < 11; y_C++)
+                {
+                    if((x_C+11*chank_x_C)*(x_C+11*chank_x_C)+(y_C+11*chank_y_C)*(y_C+11*chank_y_C)<626){
+                        theta_C=table_memory[x_C][y_C][1]/12;
+                        table=table_memory[x_C][y_C][1];
+                        theta_C_margin=(table*3)%12;
+                        possi=possibility_theta(D[theta_C],table_memory[x_C][y_C][0])*(11-theta_C_margin)+
+                        +possibility_theta(D[theta_C+1],table_memory[x_C][y_C][0])*theta_C_margin;
+                        map_memory[0][x_C][y_C]=2*(map_memory[0][x_C][y_C]*possi-64*map_memory[0][x_C][y_C]-64*possi)/(map_memory[0][x_C][y_C]+possi-256);
+
+                        possi=possibility_theta(D[24-theta_C],table_memory[x_C][y_C][0])*(11-theta_C_margin)+
+                        +possibility_theta(23-D[theta_C],table_memory[x_C][y_C][0])*theta_C_margin;
+                        map_memory[1][x_C][y_C]=2*(map_memory[1][x_C][y_C]*possi-64*map_memory[1][x_C][y_C]-64*possi)/(map_memory[1][x_C][y_C]+possi-256);
+
+                        possi=possibility_theta(D[theta_C+12],table_memory[x_C][y_C][0])*(11-theta_C_margin)+
+                        +possibility_theta(D[theta_C+13],table_memory[x_C][y_C][0])*theta_C_margin;
+                        map_memory[2][x_C][y_C]=2*(map_memory[2][x_C][y_C]*possi-64*map_memory[2][x_C][y_C]-64*possi)/(map_memory[2][x_C][y_C]+possi-256);
+
+                        possi=possibility_theta(D[48-theta_C],table_memory[x_C][y_C][0])*(11-theta_C_margin)+
+                        +possibility_theta(47-D[theta_C],table_memory[x_C][y_C][0])*theta_C_margin;
+                        map_memory[3][x_C][y_C]=2*(map_memory[3][x_C][y_C]*possi-64*map_memory[3][x_C][y_C]-64*possi)/(map_memory[3][x_C][y_C]+possi-256);
                     }
                 }
             }
+            write_map_SD(loc_x+11*chank_x_C+1,loc_y+11*chank_y_C+1,map_memory);
         }
     }
-    X=0;
-    Y=0;
-    int R;
-    R=R_xy[0][0];
-    for(X_C=0;X_C<5;X_C++){
-        for (Y_C= 0; Y_C< 5; Y_C++)
-        {
-            if(R[X_C][Y_C]>R){
-                R=R[X_C][Y_C];
-                X=X_C;
-                Y=Y_C;
-            }
-        }
-        
-    }
-    loc[0]=loc_x+X-3;
-    loc[1]=loc_y+Y-3;
+    
 }
