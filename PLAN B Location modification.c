@@ -1,4 +1,3 @@
-// Online C compiler to run C program online
 #include<stdio.h>
 #include<math.h>
 const short int div_theta=48;//角度分解能
@@ -20,11 +19,11 @@ int SD_read_chunk(short int x[12],short int y[12],char map_memory[12][5][5]){//�
     short int x_C;
     short int y_C;
     short int chunk_C;
-    for (chunk_C = 0; chunk_C < 5; chunk_C++)
+    for (chunk_C = 0; chunk_C < 12; chunk_C++)
     {
-        for (x_C = 0; x_C < 22; x_C++)
+        for (x_C = 0; x_C < 5; x_C++)
         {
-            for (y_C = 0; y_C < 22; y_C++)
+            for (y_C = 0; y_C < 5; y_C++)
             {
                 map_memory[x_C][y_C][chunk_C]=0;//＠一応0を返すようにしてある
             }
@@ -32,7 +31,7 @@ int SD_read_chunk(short int x[12],short int y[12],char map_memory[12][5][5]){//�
         
     }
 }
-int LOC(short int loc_x,short int loc_y,int loc[2]){
+int LOC(short int loc_x,short int loc_y,short int loc[2]){
     char D[div_theta+1];//角度ごとの距離
     short int theta_C;
     /*@角度を-3.75°に向ける。二つの観測で挟まれた間の距離を測っているため*/
@@ -49,8 +48,8 @@ int LOC(short int loc_x,short int loc_y,int loc[2]){
 
     char X;//最終結果を入れる
     char Y;
-    short int object_x[12];//障害物の存在する座標
-    short int object_y[12];
+    int object_x[12];//障害物の存在する座標
+    int object_y[12];
     for (theta_C = 0; theta_C < 12; theta_C++)//第1象限
     {
         object_x[theta_C]=loc_x+sin_table[12-theta_C]*max(D[theta_C],D[theta_C+1])-2;//障害物の存在する座標を計算
