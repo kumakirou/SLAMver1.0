@@ -132,30 +132,30 @@ void encorder(int l) {
 
 
 //ultrasonic
-const int trigPin = 11;
-const int echoPin = 12;
+const int trigPin = 12;
+const int echoPin1 = 13;
 
 double duration = 0;
 double distance = 0;
 
 void setup_ultrasonic() {
   pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
+  pinMode(echoPin1, INPUT);
 }
 
 float ultrasonic() {
   for ( int i = 0; i < 100; i++) {
     digitalWrite(trigPin, LOW);
-    digitalWrite(echoPin, LOW);
+    digitalWrite(echoPin1, LOW);
     delayMicroseconds(1);
     digitalWrite(trigPin, HIGH);
     delayMicroseconds(10);
     digitalWrite(trigPin, LOW);
-    duration = pulseIn(echoPin, HIGH);
+    duration = pulseIn(echoPin1, HIGH);
     distance += duration * 0.000001 * 34000 / 2;
   }
   digitalWrite(trigPin, LOW);
-  digitalWrite(echoPin, LOW);
+  digitalWrite(echoPin1, LOW);
   distance = distance * 0.01;
   return distance;
 }
