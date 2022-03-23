@@ -8,7 +8,7 @@ setup‥serial.begin(9600)
 ,setup_qmc5883(),turn_to_theta*/
 
 void MOD_LOC_Map_reflesh_main(short int loc_x,short int loc_y,short int loc[2]){
-    short int D;
+    short int D[49];
     short int theta_C;
     int minX = 0;
     int maxX = 0;
