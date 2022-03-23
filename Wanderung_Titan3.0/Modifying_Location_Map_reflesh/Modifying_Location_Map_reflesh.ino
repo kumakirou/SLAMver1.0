@@ -18,10 +18,9 @@ void MOD_LOC_Map_reflesh_main(short int loc_x,short int loc_y,short int loc[2]){
     int offY = 0;
     short int loc[2];
     setup_qmc5883();
-    for(theta_C=0;theta_C<12;theta_C++){
-        turn_to_theta(theta_C*7.5-3.75);
-        D[theta_C]=ultrasonic1();//東がx軸
-        D[theta_C+12]=ultrasonic2();
+    for(theta_C=0;theta_C<48;theta_C++){
+        turn_to_theta(theta_C*7.5-180);
+        D[theta_C]=ultrasonic();//東がx軸
     }
     D[49]=D[0];
     MOD_LOC(loc_x,loc_y,loc,D);
@@ -33,16 +32,22 @@ void turn_to_theta(short int theta){
     short int theta_now;
     short int delta_theta;
     theta_now=round(qmc5883_2());
-    delta_theta=theta-theta_now;
+    delta_theta=mod_theta(theta-theta_now);
     while(abs(delta_theta)>2){
         if(delta_theta>0){
-            turn_right(delta_theta*0.0114);
+            turn_right(delta_theta*0.0113);
         }
         else{
-            turn_right(-delta_theta*0.0114);
+            turn_right(-delta_theta*0.0113);
         }
-        delta_theta=theta-theta_now;
+        delta_theta=mod_theta(theta-theta_now);
     }
+}
+
+short int mod_theta(short int theta){
+    short int result;
+    result=theta%360-180;
+    return result;
 }
 
 short int possibility_theta(short int d,char r){//各方向の存在確率を示す関数
