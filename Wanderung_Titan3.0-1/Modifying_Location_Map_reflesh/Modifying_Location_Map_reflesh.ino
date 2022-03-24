@@ -6,44 +6,44 @@ setup‥serial.begin(9600)
 関数‥map_reforming,MOD_LOC,SD_read_map,max,qmc5883_2,ultrasonic(),importing,exporting,possibility_theta,r_theta_table
 ,setup_qmc5883(),turn_to_theta,mod_theta*/
 
-void MOD_LOC_Map_reflesh_main(short int loc[2]){
+void MOD_LOC_Map_reflesh_main(short int loc[2]){//x座標y座標の配列。引数にも戻り値にも使用
     char D[49];
     short int theta_C;
-    int minX = 0;
+    int minX = 0;//磁気センサーのセットアップに使う変数？？？
     int maxX = 0;
     int minY = 0;
     int maxY = 0;
     int offX = 0;
     int offY = 0;
-    short int loc[2];
     setup_qmc5883();
     short int theta_now;
     theta_now=qmc5883_2();
     short int theta_C_first;
-    theta_C_first=((theta_now+180)/7.5-12)%48;
+    theta_C_first=(-theta_now/7.5-12)%48;//最初に距離を測る角度のインデント
     for(theta_C=0;theta_C<48;theta_C++){
         turn_to_theta(round((theta_C_first+theta_C)*7.5-3.75));
         D[(theta_C+theta_C_first)%48]=ultrasonic();//東がx軸
+        }
     }
-    D[48]=D[0];
-    MOD_LOC(loc,D);
-    map_reforming(loc[0],loc[1],D);
+    D[48]=D[0];//計算のためサイクリックに
+    MOD_LOC(loc,D);//自己位置推定
+    map_reforming(loc[0],loc[1],D);//マップ作製
 }
 
 /*sub関数(自作)*/
-void turn_to_theta(short int theta){
-    short int theta_now;
-    short int delta_theta;
-    theta_now=qmc5883_2();
-    delta_theta=mod_theta(theta-theta_now);
+void turn_to_theta(short int theta){//引数は目標角
+    short int theta_now;//現在角(-180°～180°)
+    short int delta_theta;//目標角との差(-180°～180°)
+    theta_now=qmc5883_2();//測定
+    delta_theta=mod_theta(theta+theta_now);//目標角との差。現在角はローバーの方位ではなくローバーから見た磁北線の方位でありローバーの方位はそのマイナスで与えられることに注意。
     while(abs(delta_theta)>2){
         if(delta_theta>0){
-            turn_right(delta_theta*0.0113);
+            turn_left(delta_theta*0.0113);//目標角の方が大きいので左旋回
         }
         else{
-            turn_right(-delta_theta*0.0113);
+            turn_right(-delta_theta*0.0113);//目標角の方が小さいので右旋回
         }
-        delta_theta=mod_theta(theta-theta_now);
+        delta_theta=mod_theta(theta+theta_now);
     }
 }
 
@@ -140,13 +140,16 @@ void MOD_LOC(short int loc_x,short int loc_y,int loc[2],char D[49]){
     }
     SD_read_map(map_memory,object_x, object_y);
     for(theta_C=0;theta_C<12;theta_C++){
-        for (X_C; X_C < 5; X_C++)
+        if(D[theta_C]<50)
         {
-            for (Y_C = 0; Y_C < 5; Y_C++)
+            for (X_C; X_C < 5; X_C++)
             {
-                R_xy[X_C][Y_C]=R_xy[X_C][Y_C]+map_memory[theta_C][X_C][Y_C];
-            }
+                for (Y_C = 0; Y_C < 5; Y_C++)
+                {
+                    R_xy[X_C][Y_C]=R_xy[X_C][Y_C]+map_memory[theta_C][X_C][Y_C];
+                }
         
+            }
         }
     }
     for (theta_C = 0; theta_C < 12; theta_C++)//第2象限
@@ -156,13 +159,14 @@ void MOD_LOC(short int loc_x,short int loc_y,int loc[2],char D[49]){
     }
     SD_read_map(map_memory,object_x, object_y);
     for(theta_C=0;theta_C<12;theta_C++){
-        for (X_C; X_C < 5; X_C++)
-        {
-            for (Y_C = 0; Y_C < 5; Y_C++)
+        if(D[theta_C]<50){
+            for (X_C; X_C < 5; X_C++)
             {
-                R_xy[X_C][Y_C]=R_xy[X_C][Y_C]+map_memory[theta_C][X_C][Y_C];
+                for (Y_C = 0; Y_C < 5; Y_C++)
+                {
+                    R_xy[X_C][Y_C]=R_xy[X_C][Y_C]+map_memory[theta_C][X_C][Y_C];
+                }
             }
-        
         }
     }
     for (theta_C = 0; theta_C < 12; theta_C++)//第3象限
@@ -172,13 +176,14 @@ void MOD_LOC(short int loc_x,short int loc_y,int loc[2],char D[49]){
     }
     SD_read_map(map_memory,object_x, object_y);
     for(theta_C=0;theta_C<12;theta_C++){
-        for (X_C; X_C < 5; X_C++)
-        {
-            for (Y_C = 0; Y_C < 5; Y_C++)
+        if(D[theta_C]<50){
+            for (X_C; X_C < 5; X_C++)
             {
-                R_xy[X_C][Y_C]=R_xy[X_C][Y_C]+map_memory[theta_C][X_C][Y_C];
+                for (Y_C = 0; Y_C < 5; Y_C++)
+                {
+                    R_xy[X_C][Y_C]=R_xy[X_C][Y_C]+map_memory[theta_C][X_C][Y_C];
+                }
             }
-        
         }
     }
     for (theta_C = 0; theta_C < 12; theta_C++)//第4象限
@@ -188,13 +193,16 @@ void MOD_LOC(short int loc_x,short int loc_y,int loc[2],char D[49]){
     }
     SD_read_map(map_memory,object_x, object_y);
     for(theta_C=0;theta_C<12;theta_C++){
-        for (X_C; X_C < 5; X_C++)
+        if(D[theta_C]<50)
         {
-            for (Y_C = 0; Y_C < 5; Y_C++)
+            for (X_C; X_C < 5; X_C++)
             {
-                R_xy[X_C][Y_C]=R_xy[X_C][Y_C]+map_memory[theta_C][X_C][Y_C];
-            }
+                for (Y_C = 0; Y_C < 5; Y_C++)
+                {
+                    R_xy[X_C][Y_C]=R_xy[X_C][Y_C]+map_memory[theta_C][X_C][Y_C];
+                }
         
+            }
         }
     }
     X=0;
