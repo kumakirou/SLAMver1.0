@@ -4,7 +4,8 @@ main関数、引数は(ロリコンから判明した現在地X,ロリコンか�
 #include‥<math.h>,<Wire.h>,<DFRobot_QMC5883.h>,<Servo.h>
 setup‥serial.begin(9600)
 関数‥map_reforming,MOD_LOC,SD_read_map,max,qmc5883_2,ultrasonic(),importing,exporting,possibility_theta,r_theta_table
-,setup_qmc5883(),turn_to_theta,mod_theta*/
+,setup_qmc5883(),turn_to_theta,mod_theta
+*/
 
 void MOD_LOC_Map_reflesh_main(short int loc[2]){//x座標y座標の配列。引数にも戻り値にも使用
     char D[49];
