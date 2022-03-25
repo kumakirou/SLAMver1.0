@@ -19,10 +19,10 @@ void MOD_LOC_Map_reflesh_main(short int loc[2]){//x座標y座標の配列。引�
     short int theta_now;//現在のローバーから見た磁北線の角
     theta_now=qmc5883_2();
     short int theta_C_first;//
-    theta_C_first=(-theta_now/7.5-12)%48;//最初に距離を測る角度のインデント
+    theta_C_first=(-theta_now/7.5)%48;//最初に距離を測る角度のインデント
     for(theta_C=0;theta_C<48;theta_C++){//角度を刻みながら左回転し超音波センサーの距離をＤ[]に格納
         turn_to_theta(round((theta_C_first+theta_C)*7.5-3.75));
-        D[(theta_C+theta_C_first)%48]=ultrasonic();//東がx軸
+        D[(theta_C+theta_C_first)%48]=ultrasonic();//南がx軸
         }
     }
     D[48]=D[0];//計算のためサイクリックに
