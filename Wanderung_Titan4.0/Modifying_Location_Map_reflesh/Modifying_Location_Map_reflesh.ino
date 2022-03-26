@@ -61,7 +61,7 @@ void turn_to_theta(short int theta){//引数は目標角。目標角に向けて
 
 short int mod_theta(short int theta){//引数は一般角、-180°から108°に変換
     short int result;
-    result=theta%360-180;//剰余算
+    result=(theta%360+360)%360-180;//剰余算
     return result;
 }
 
