@@ -39,7 +39,7 @@ char synsesize_map_point(char old_map,char ultra_result){//マップの各点に
     return new_map;
 }
 
-void map_reforming(short int loc_x,short int loc_y,char D[24],char mapdata[20][10]){//地図更新,引数は(x座標　y座標　各方位ごとの障害物の距離)。r_theta_table,exporting,importing,possibility_theta,synsesize_map_pointが必要
+void map_reforming(short int loc_x,short int loc_y,char D[div_theta+1],char mapdata[20][10]){//地図更新,引数は(x座標　y座標　各方位ごとの障害物の距離)。r_theta_table,exporting,importing,possibility_theta,synsesize_map_pointが必要
     short int x_C;//チャンク内のマップのマスを数えるカウンタ
     short int y_C;
     char possi;//存在確率を格納
@@ -62,7 +62,7 @@ void map_reforming(short int loc_x,short int loc_y,char D[24],char mapdata[20][1
     }
 }
 
-void MOD_LOC(short int loc[2],char D[24],char mapdata[20][10]){//自己位置推定関数。引数は現在地のポインタ(返り値を入れるためにも使用),超音波センサーの距離。,SD_read_mapが必要
+void MOD_LOC(short int loc[2],char D[div_theta+1],char mapdata[20][10]){//自己位置推定関数。引数は現在地のポインタ(返り値を入れるためにも使用),超音波センサーの距離。,SD_read_mapが必要
     int R_xy[3][3];//相関係数を入れる箱
     short int X_C;//相関係数を求めるために、テーブルと捜査範囲をずらすカウンタ
     short int Y_C;
