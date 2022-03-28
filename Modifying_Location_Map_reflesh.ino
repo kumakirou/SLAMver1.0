@@ -47,9 +47,9 @@ void map_reforming(short int loc_x,short int loc_y,char D[24],char mapdata[20][1
     short int theta_C;
     float theta_margin;
     for(x_C=0;x_C<5;x_C++){
-      if(x_C+loc_x>=0&x_C+loc_x<=199){
+      if(x_C+loc_x>=0&x_C+loc_x<=19){
         for(y_C=0;y_C<5;y_C++){
-          if(y_C+loc_y>=0&y_C+loc_y<=99){
+          if(y_C+loc_y>=0&y_C+loc_y<=9){
             theta=atan2(y_C,x_C)/6.2832*360+360;
             theta=theta%360;
             theta_C=theta/inv_div_theta;
@@ -71,15 +71,14 @@ void MOD_LOC(short int loc[2],char D[24],char mapdata[20][10]){//自己位置推
     char Y;
     short int object_x;
     short int object_y;
-    char D_kari;
     for(theta_C=0;theta_C<div_theta;theta_C++){
       object_x=round(D[theta_C]*cos(theta_C*6.2832/div_theta)/10);
       object_y=round(D[theta_C]*sin(theta_C*6.2832/div_theta)/10);
-      if(D_kari<50){
+      if(D[theta_C]<50){
         for(X_C=0;X_C<5;X_C++){
-          if(object_x+loc[0]+X_C-1>=0&object_x+loc[0]+X_C-1<=199){
+          if(object_x+loc[0]+X_C-1>=0&object_x+loc[0]+X_C-1<=19){
             for(Y_C=0;Y_C<5;Y_C++){
-              if(object_y+loc[1]+Y_C-1>=0&object_y+loc[1]+Y_C-1<=99){
+              if(object_y+loc[1]+Y_C-1>=0&object_y+loc[1]+Y_C-1<=9){
                 R_xy[X_C][Y_C]=R_xy[X_C][Y_C]+mapdata[object_x+loc[0]+X_C-1][object_y+loc[1]+Y_C-1];
               }
             }
@@ -117,8 +116,8 @@ void MOD_LOC(short int loc[2],char D[24],char mapdata[20][10]){//自己位置推
         }
         
     }
-    loc[0]=loc[0]+X*10-10;//位置更新
-    loc[1]=loc[1]+Y*10-10;
+    loc[0]=loc[0]+X-1;//位置更新
+    loc[1]=loc[1]+Y-1;
 }
 
 
