@@ -1,9 +1,9 @@
-#define div_theta 48
+#define div_theta 24
 #define map_size_x 200
 #define map_size_y 100
 #define map_mesh_x 20
 #define map_mesh_y 10
-
+#define inv_div_theta 15
 
 /*
 main関数、引数は(ロリコンから判明した現在地X,ロリコンから判明した現在地Y,補正された現在地を入れる戻り値用の配列)。
@@ -39,14 +39,13 @@ char synsesize_map_point(char old_map,char ultra_result){//マップの各点に
     return new_map;
 }
 
-void map_reforming(short int loc_x,short int loc_y,char D[49],char mapdata[20][10]){//地図更新,引数は(x座標　y座標　各方位ごとの障害物の距離)。r_theta_table,exporting,importing,possibility_theta,synsesize_map_pointが必要
+void map_reforming(short int loc_x,short int loc_y,char D[24],char mapdata[20][10]){//地図更新,引数は(x座標　y座標　各方位ごとの障害物の距離)。r_theta_table,exporting,importing,possibility_theta,synsesize_map_pointが必要
     short int x_C;//チャンク内のマップのマスを数えるカウンタ
     short int y_C;
     char possi;//存在確率を格納
     short int theta;
     short int theta_C;
     float theta_margin;
-    const int inv_div_theta=360/div_theta;
     for(x_C=0;x_C<5;x_C++){
       if(x_C+loc_x>=0&x_C+loc_x<=199){
         for(y_C=0;y_C<5;y_C++){
@@ -63,7 +62,7 @@ void map_reforming(short int loc_x,short int loc_y,char D[49],char mapdata[20][1
     }
 }
 
-void MOD_LOC(short int loc[2],char D[49],char mapdata[20][10]){//自己位置推定関数。引数は現在地のポインタ(返り値を入れるためにも使用),超音波センサーの距離。,SD_read_mapが必要
+void MOD_LOC(short int loc[2],char D[24],char mapdata[20][10]){//自己位置推定関数。引数は現在地のポインタ(返り値を入れるためにも使用),超音波センサーの距離。,SD_read_mapが必要
     int R_xy[3][3];//相関係数を入れる箱
     short int X_C;//相関係数を求めるために、テーブルと捜査範囲をずらすカウンタ
     short int Y_C;
@@ -74,15 +73,14 @@ void MOD_LOC(short int loc[2],char D[49],char mapdata[20][10]){//自己位置推
     short int object_y;
     char D_kari;
     for(theta_C=0;theta_C<div_theta;theta_C++){
-      D_kari=max(D[theta_C],D[theta_C+1]);
-      object_x=round(D_kari*cos((theta_C+0.5)*6.2832/div_theta)/10);
-      object_y=round(D_kari*sin((theta_C+0.5)*6.2832/div_theta)/10);
+      object_x=round(D[theta_C]*cos(theta_C*6.2832/div_theta)/10);
+      object_y=round(D[theta_C]*sin(theta_C*6.2832/div_theta)/10);
       if(D_kari<50){
         for(X_C=0;X_C<5;X_C++){
-          if(object_x+loc[0]+X_C>=0&object_x+loc[0]+X_C<=199){
+          if(object_x+loc[0]+X_C-1>=0&object_x+loc[0]+X_C-1<=199){
             for(Y_C=0;Y_C<5;Y_C++){
-              if(object_y+loc[1]+Y_C>=0&object_y+loc[1]+Y_C<=99){
-                R_xy[X_C][Y_C]=mapdata[object_x+loc[0]+X_C][object_y+loc[1]+Y_C];
+              if(object_y+loc[1]+Y_C-1>=0&object_y+loc[1]+Y_C-1<=99){
+                R_xy[X_C][Y_C]=R_xy[X_C][Y_C]+mapdata[object_x+loc[0]+X_C-1][object_y+loc[1]+Y_C-1];
               }
             }
           }
@@ -126,13 +124,8 @@ void MOD_LOC(short int loc[2],char D[49],char mapdata[20][10]){//自己位置推
 
 
 
-void MOD_LOC_Map_reflesh_main(short int loc[2],char D_raw[div_theta],char mapdata[20][10]){//引数はx座標y座標の配列、x軸を始線とした左回りにdev_theta回サンプリングした超音波センサーの値、マップ。戻り値格納にも使用。ultrasonic_behind,MOD_LOC,map_reforming,maxが必要
+void MOD_LOC_Map_reflesh_main(short int loc[2],char D_raw[div_theta],char mapdata[20][10]){//引数は現在地のx座標y座標の配列、x軸を始線とした左回りにdev_theta回サンプリングした超音波センサーの値、マップ。戻り値格納にも使用。ultrasonic_behind,MOD_LOC,map_reforming,maxが必要
     char D_fixed[div_theta+1];
-    short int theta_C;
-    for(theta_C=0;theta_C<div_theta-1;theta_C++){
-        D_fixed[theta_C]=max(D_raw[theta_C],D_raw[theta_C+1]);
-    }
-    D_fixed[div_theta-1]=max(D_raw[div_theta-1],D_raw[48]);
     D_fixed[div_theta]=D_fixed[0];//計算のためサイクリックに
     MOD_LOC(loc,D_fixed,mapdata);//自己位置推定
     map_reforming(loc[0],loc[1],D_fixed,mapdata);//マップ作製
